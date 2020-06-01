@@ -1,0 +1,5 @@
+{:paths ["lib"]
+ :deps {}
+ :aliases {:test {:extra-paths ["test"]}
+           :kaocha {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.632"}}}
+           :kaocha-cljs {:extra-deps {lambdaisland/kaocha-cljs {:mvn/version "0.0-71"}}}}}

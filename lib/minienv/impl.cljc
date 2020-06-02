@@ -81,7 +81,7 @@
 
 (defn get-env
   [env k default]
-  (or (when-let [v (-> env :env (get k))]
+  (or (when-let [v (get env k)]
         (case (:type v)
           :string (:value v)
           :file (-> v :path io/as-file slurp)))

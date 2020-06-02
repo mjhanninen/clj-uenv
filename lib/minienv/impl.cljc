@@ -71,7 +71,9 @@
 (defn load-env
   [paths]
   (let [events (source-env paths)]
-    (when-let [errors (filter #(= (:type %) :error) events)]
+    (when-let [errors (->> events
+                        (filter #(= (:type %) :error))
+                        not-empty)]
       (throw (ex-info "errors while sourcing environment variables"
                       {:type :minienv/error
                        :errors (vec errors)})))

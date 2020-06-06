@@ -6,6 +6,10 @@
   ([]
    (impl/load-env nil))
   ([paths]
+   {:pre [(or (nil? paths)
+              (seq? paths)
+              (list? paths)
+              (vector? paths))]}
    (impl/load-env paths)))
 
 (let [g (memoize impl/get-env)]
@@ -13,4 +17,5 @@
     ([env k]
      (g env k nil))
     ([env k default]
+     {:pre [(map? env) (string? k)]}
      (g env k default))))

@@ -1,4 +1,4 @@
-(ns minienv
+(ns minienv.core
   (:refer-clojure :exclude [get load])
   (:require [minienv.impl :as impl]))
 

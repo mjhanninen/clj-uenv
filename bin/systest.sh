@@ -7,7 +7,7 @@
 test_01_load()
 {
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (when (not-empty (m/load))
   (println "Did load"))
 EOF
@@ -19,7 +19,7 @@ EOF
 test_02_undefined_envars()
 {
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO"))
   (prn :bar (m/get env "BAR" "BAR with default")))
@@ -35,7 +35,7 @@ test_03_vars_from_env()
   FOO="FOO in environment" \
   BAR="BAR in environment" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO"))
   (prn :bar (m/get env "BAR" "BAR with default"))
@@ -53,7 +53,7 @@ test_04_empty_dotenv_file()
   local f="$(mktemp)"
   touch "$f"
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load ["$f"])]
   (prn (m/get env "FOO" "FOO undefined")))
 EOF
@@ -73,7 +73,7 @@ BAR=BAR in file
 EOF
   BAR="BAR in environment" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load ["$f"])]
   (prn (m/get env "FOO" "FOO is undefined"))
   (prn (m/get env "BAR" "BAR is undefined"))
@@ -102,7 +102,7 @@ BAZ=BAZ in file 2
 EOF
   BAZ="BAZ in environment" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load ["$f1" "$f2"])]
   (prn (m/get env "FOO" "FOO is undefined"))
   (prn (m/get env "BAR" "BAR is undefined"))
@@ -123,7 +123,7 @@ test_07_value_from_file()
   echo -n "Value for FOO from file" > "$f_val"
   FOO_FILE="$f_val" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
   (prn :foo-file (m/get env "FOO_FILE" "FOO_FILE is undefined")))
@@ -143,7 +143,7 @@ Second line
 EOF
   FOO_FILE="$f_val" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load)]
   (prn (m/get env "FOO" "FOO is undefined")))
 EOF
@@ -163,7 +163,7 @@ BAR=BAR in .env file
 EOF
   FOO_FILE="$f_val" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load ["$f_env"])]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
   (prn :bar (m/get env "BAR" "BAR is undefined")))
@@ -185,7 +185,7 @@ BAR_FILE=$f_val
 EOF
   FOO="FOO in environment" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load ["$f_env"])]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
   (prn :bar (m/get env "BAR" "BAR is undefined")))
@@ -203,7 +203,7 @@ test_0B_env_value_trumps_file_value_in_environment()
   FOO_FILE="$f_val" \
   FOO="FOO in environment" \
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
   (prn :foo-file (m/get env "FOO_FILE" "FOO_FILE is undefined")))
@@ -230,7 +230,7 @@ BAR_FILE=$f_bar_val
 BAZ=BAZ redefined in .env file
 EOF
   eval_clj <<EOF
-(require '[minienv :as m])
+(require '[minienv.core :as m])
 (let [env (m/load ["$f_env"])]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
   (prn :bar (m/get env "BAR" "BAR is undefined"))

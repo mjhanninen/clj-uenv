@@ -1,6 +1,7 @@
 (ns minienv.impl
-  (:require [clojure.java.io :as io]
-            [clojure.set :as set]))
+  (:require [clojure.set :as set]
+            [#?(:clj minienv.impl.jvm
+                :cljs minienv.impl.node) :as platform]))
 
 (defn parse-env-line
   [line]
@@ -14,32 +15,24 @@
          :value v})
       {:type :err}))
 
-(defn source-env-file
-  [path]
-  (let [f (io/as-file path)
-        p (.getAbsolutePath f)]
-    (with-open [r (io/reader f)]
-      (mapv (fn [s i]
-              (assoc (parse-env-line s)
-                     :src {:type :file
-                           :path p
-                           :line (inc i)}))
-            (line-seq r)
-            (range)))))
+(defn ->env-file-event
+  [path line-num line]
+  (assoc (parse-env-line line)
+         :src {:type :file
+               :path path
+               :line line-num}))
 
-(defn source-system-env
-  []
-  (map (fn [[k v]]
-         {:type :keyval
-          :key k
-          :value v
-          :src {:type :system}})
-       (System/getenv)))
+(defn ->sys-env-event
+  [k v]
+  {:type :keyval
+   :key k
+   :value v
+   :src {:type :system}})
 
 (defn source-env
   [paths]
-  (concat (mapcat source-env-file paths)
-          (source-system-env)))
+  (concat (mapcat #(platform/source-env-file ->env-file-event %) paths)
+          (platform/source-system-env ->sys-env-event)))
 
 (defn key-of-file-ptr
   [key]
@@ -84,5 +77,5 @@
   (or (when-let [v (get env k)]
         (case (:type v)
           :string (:value v)
-          :file (-> v :path io/as-file slurp)))
+          :file (-> v :path platform/slurp)))
       default))

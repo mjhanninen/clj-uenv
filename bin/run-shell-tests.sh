@@ -266,9 +266,10 @@ run_test()
 {
   ((N_TESTS++))
   TEST_NAME="$1 ($2)"
+  TEST_FNAME_TRUNK="${OUT_DIR}/${TS_START}-${1}__${2}"
   test -e "$OUT_DIR" || mkdir -p "$OUT_DIR"
-  OUT_ACTUAL="${OUT_DIR}/${TS_START}-${TEST_NAME}.actual"
-  OUT_EXPECT="${OUT_DIR}/${TS_START}-${TEST_NAME}.expect"
+  OUT_ACTUAL="${TEST_FNAME_TRUNK}.actual"
+  OUT_EXPECT="${TEST_FNAME_TRUNK}.expect"
   touch "$OUT_ACTUAL"
   touch "$OUT_EXPECT"
   echo -e -n "$TEST_NAME ${PADSTR:$((${#TEST_NAME} + 9))} \e[34mTESTING\e[39m"

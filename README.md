@@ -1,8 +1,9 @@
 # Uenv
 
-**Uenv** is a library for helping configuring Clojure and ClojureScript
-backends in serverless environments.  Think of it as "dotenv" amended with
-`*_FILE` convention.
+**Uenv** is a minimal library helping to configure Clojure and ClojureScript
+backends through in the spirit of 12-factor app.  It supports `.env` files to
+facilitate local development and the `*_FILE` convention for handling large
+and, in some settings, secret values.
 
 ## Features
 
@@ -26,6 +27,12 @@ backends in serverless environments.  Think of it as "dotenv" amended with
 [aero]: https://github.com/juxt/aero
 
 ## Examples
+
+### General usage
+
+(To be written)
+
+- Tests in `bin/run-shell-tests.sh` give a starting point
 
 ### Handling secrets with Docker
 

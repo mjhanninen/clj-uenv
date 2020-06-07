@@ -6,7 +6,7 @@
 
 test_01_load()
 {
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (when (not-empty (m/load))
   (println "Did load"))
@@ -18,7 +18,7 @@ EOF
 
 test_02_undefined_envars()
 {
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO"))
@@ -34,7 +34,7 @@ test_03_vars_from_env()
 {
   FOO="FOO in environment" \
   BAR="BAR in environment" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO"))
@@ -52,7 +52,7 @@ test_04_empty_dotenv_file()
 {
   local f="$(mktemp)"
   touch "$f"
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load ["$f"])]
   (prn (m/get env "FOO" "FOO undefined")))
@@ -72,7 +72,7 @@ FOO=FOO in file
 BAR=BAR in file
 EOF
   BAR="BAR in environment" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load ["$f"])]
   (prn (m/get env "FOO" "FOO is undefined"))
@@ -101,7 +101,7 @@ BAR=BAR in file 2
 BAZ=BAZ in file 2
 EOF
   BAZ="BAZ in environment" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load ["$f1" "$f2"])]
   (prn (m/get env "FOO" "FOO is undefined"))
@@ -122,7 +122,7 @@ test_07_value_from_file()
   local f_val="$(mktemp)"
   echo -n "Value for FOO from file" > "$f_val"
   FOO_FILE="$f_val" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
@@ -142,7 +142,7 @@ First line
 Second line
 EOF
   FOO_FILE="$f_val" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load)]
   (prn (m/get env "FOO" "FOO is undefined")))
@@ -162,7 +162,7 @@ FOO=FOO in .env file
 BAR=BAR in .env file
 EOF
   FOO_FILE="$f_val" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load ["$f_env"])]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
@@ -184,7 +184,7 @@ FOO_FILE=$f_val
 BAR_FILE=$f_val
 EOF
   FOO="FOO in environment" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load ["$f_env"])]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
@@ -202,7 +202,7 @@ test_0B_env_value_trumps_file_value_in_environment()
   echo -n "Value for FOO from value file" > "$f_val"
   FOO_FILE="$f_val" \
   FOO="FOO in environment" \
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load)]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
@@ -229,7 +229,7 @@ FOO=2nd definition of FOO
 BAR_FILE=$f_bar_val
 BAZ=BAZ redefined in .env file
 EOF
-  eval_clj <<EOF
+  eval_cljc <<EOF
 (require '[minienv.core :as m])
 (let [env (m/load ["$f_env"])]
   (prn :foo (m/get env "FOO" "FOO is undefined"))
@@ -255,6 +255,8 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 TS_START="$(date +%Y%m%d%H%M%S)"
 OUT_DIR=tmp/log
+NS_DIR=tmp/cljs
+JS_DIR=tmp/js
 OUT_REPORT="${OUT_DIR}/${TS_START}-report.txt"
 PADSTR="................................................................................"
 N_TESTS=0
@@ -293,9 +295,58 @@ run_test()
   fi
 }
 
+eval_cljs_advanced()
+{
+  mkdir -p "$NS_DIR/test"
+  mkdir -p "$JS_DIR"
+  local NS_FILE="$(mktemp -p "$NS_DIR/test" -t "main_XXXXXXX.cljs")"
+  local NS="test.main-${NS_FILE#*test/main_}"
+  NS="${NS%.cljs}"
+  local JS_FILE="$JS_DIR/${NS_FILE##*test/}"
+  JS_FILE="${JS_FILE/%.cljs/.js}"
+  echo
+  echo "NS_DIR=$NS_DIR"
+  echo "NS_FILE=$NS_FILE"
+  echo "NS=$NS"
+  echo "JS_FILE=$JS_FILE"
+  cat <<EOF > "$NS_FILE"
+(ns $NS
+  (:require [cljs.nodejs :as nodejs]))
+(nodejs/enable-util-print!)
+EOF
+  cat - >> "$NS_FILE"
+  cat <<EOF >> "$NS_FILE"
+(defn -main [& _]
+  ;; do nothing
+  )
+(set! *main-cli-fn* -main)
+EOF
+  clojure -Srepro \
+          -Sdeps "{:aliases {:shell-test {:extra-paths [\"$NS_DIR\"]}}}" \
+          -A:cljs:shell-test \
+          -Sverbose \
+          -m cljs.main \
+          --verbose true \
+          --compile-opts "{:output-to \"$JS_FILE\"
+                           :optimizations :advanced
+                           :target :nodejs
+                           :main \"$NS\"}"
+  node "$JS_FILE" >> "$OUT_ACTUAL" 2>&1
+}
+
 eval_clj()
 {
   clojure -Srepro - >> "$OUT_ACTUAL" 2>&1
+}
+
+eval_cljs()
+{
+  clojure -Srepro -A:cljs -m cljs.main -re node - >> "$OUT_ACTUAL" 2>&1
+}
+
+eval_cljc()
+{
+  "$EVAL_CLJC_COMMAND"
 }
 
 expect()
@@ -328,6 +379,8 @@ EOF
     exit 1
   fi
 }
+
+EVAL_CLJC_COMMAND=eval_cljs_advanced
 
 if (( $# > 0 ))
 then

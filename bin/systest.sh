@@ -295,45 +295,6 @@ run_test()
   fi
 }
 
-eval_cljs_advanced()
-{
-  mkdir -p "$NS_DIR/test"
-  mkdir -p "$JS_DIR"
-  local NS_FILE="$(mktemp -p "$NS_DIR/test" -t "main_XXXXXXX.cljs")"
-  local NS="test.main-${NS_FILE#*test/main_}"
-  NS="${NS%.cljs}"
-  local JS_FILE="$JS_DIR/${NS_FILE##*test/}"
-  JS_FILE="${JS_FILE/%.cljs/.js}"
-  echo
-  echo "NS_DIR=$NS_DIR"
-  echo "NS_FILE=$NS_FILE"
-  echo "NS=$NS"
-  echo "JS_FILE=$JS_FILE"
-  cat <<EOF > "$NS_FILE"
-(ns $NS
-  (:require [cljs.nodejs :as nodejs]))
-(nodejs/enable-util-print!)
-EOF
-  cat - >> "$NS_FILE"
-  cat <<EOF >> "$NS_FILE"
-(defn -main [& _]
-  ;; do nothing
-  )
-(set! *main-cli-fn* -main)
-EOF
-  clojure -Srepro \
-          -Sdeps "{:aliases {:shell-test {:extra-paths [\"$NS_DIR\"]}}}" \
-          -A:cljs:shell-test \
-          -Sverbose \
-          -m cljs.main \
-          --verbose true \
-          --compile-opts "{:output-to \"$JS_FILE\"
-                           :optimizations :advanced
-                           :target :nodejs
-                           :main \"$NS\"}"
-  node "$JS_FILE" >> "$OUT_ACTUAL" 2>&1
-}
-
 eval_clj()
 {
   clojure -Srepro - >> "$OUT_ACTUAL" 2>&1
@@ -380,7 +341,7 @@ EOF
   fi
 }
 
-EVAL_CLJC_COMMAND=eval_cljs_advanced
+EVAL_CLJC_COMMAND=eval_clj
 
 if (( $# > 0 ))
 then

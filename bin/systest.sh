@@ -264,14 +264,22 @@ N_ERRORS=0
 
 run_test()
 {
-  TEST_NAME="$1"
   ((N_TESTS++))
+  TEST_NAME="$1 ($2)"
   test -e "$OUT_DIR" || mkdir -p "$OUT_DIR"
   OUT_ACTUAL="${OUT_DIR}/${TS_START}-${TEST_NAME}.actual"
   OUT_EXPECT="${OUT_DIR}/${TS_START}-${TEST_NAME}.expect"
   touch "$OUT_ACTUAL"
   touch "$OUT_EXPECT"
   echo -e -n "$TEST_NAME ${PADSTR:$((${#TEST_NAME} + 9))} \e[34mTESTING\e[39m"
+  case "$2" in
+    clj)
+      EVAL_CLJC_COMMAND=eval_clj
+      ;;
+    cljs)
+      EVAL_CLJC_COMMAND=eval_cljs
+      ;;
+  esac
   "$1" || true
   if diff -q "$OUT_EXPECT" "$OUT_ACTUAL" >/dev/null
   then
@@ -341,18 +349,18 @@ EOF
   fi
 }
 
-EVAL_CLJC_COMMAND=eval_clj
-
 if (( $# > 0 ))
 then
   for t in "$@"
   do
-    run_test "$t"
+    run_test "$t" clj
+    run_test "$t" cljs
   done
 else
   for t in $(declare -F | sed -n -e 's/declare -f \(test_.*\)/\1/p')
   do
-    run_test "$t"
+    run_test "$t" clj
+    run_test "$t" cljs
   done
 fi
 

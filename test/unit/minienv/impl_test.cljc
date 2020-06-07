@@ -1,6 +1,6 @@
-(ns unit.minienv.impl-test
+(ns unit.uenv.impl-test
   (:require [clojure.test :refer [are deftest is testing]]
-            [minienv.impl :refer :all]))
+            [uenv.impl :refer :all]))
 
 (deftest test-parse-env-line
   (testing "is not nil tolerant"

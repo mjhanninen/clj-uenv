@@ -1,4 +1,4 @@
-(ns minienv.impl.jvm
+(ns uenv.impl.jvm
   (:refer-clojure :exclude [slurp])
   (:require [clojure.java.io :as io]))
 

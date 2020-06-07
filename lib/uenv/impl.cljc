@@ -1,7 +1,7 @@
-(ns minienv.impl
+(ns uenv.impl
   (:require [clojure.set :as set]
-            [#?(:clj minienv.impl.jvm
-                :cljs minienv.impl.node) :as platform]))
+            [#?(:clj uenv.impl.jvm
+                :cljs uenv.impl.node) :as platform]))
 
 (defn parse-env-line
   [line]
@@ -68,7 +68,7 @@
                         (filter #(= (:type %) :error))
                         not-empty)]
       (throw (ex-info "errors while sourcing environment variables"
-                      {:type :minienv/error
+                      {:type :uenv/error
                        :errors (vec errors)})))
     (make-env events)))
 

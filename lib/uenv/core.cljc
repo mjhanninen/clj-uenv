@@ -1,6 +1,6 @@
-(ns minienv.core
+(ns uenv.core
   (:refer-clojure :exclude [get load])
-  (:require [minienv.impl :as impl]))
+  (:require [uenv.impl :as impl]))
 
 (defn load
   ([]

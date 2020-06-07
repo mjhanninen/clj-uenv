@@ -277,6 +277,9 @@ run_test()
     clj)
       EVAL_CLJC_COMMAND=eval_clj
       ;;
+    clj8)
+      EVAL_CLJC_COMMAND=eval_clj8
+      ;;
     cljs)
       EVAL_CLJC_COMMAND=eval_cljs
       ;;
@@ -304,19 +307,24 @@ run_test()
   fi
 }
 
+eval_cljc()
+{
+  "$EVAL_CLJC_COMMAND"
+}
+
 eval_clj()
 {
   clojure -Srepro - >> "$OUT_ACTUAL" 2>&1
 }
 
-eval_cljs()
+eval_clj8()
 {
-  clojure -Srepro -A:cljs -m cljs.main -re node - >> "$OUT_ACTUAL" 2>&1
+  clojure -Srepro -Aclj8 - >> "$OUT_ACTUAL" 2>&1
 }
 
-eval_cljc()
+eval_cljs()
 {
-  "$EVAL_CLJC_COMMAND"
+  clojure -Srepro -Acljs -m cljs.main -re node - >> "$OUT_ACTUAL" 2>&1
 }
 
 expect()
@@ -355,12 +363,14 @@ then
   for t in "$@"
   do
     run_test "$t" clj
+    run_test "$t" clj8
     run_test "$t" cljs
   done
 else
   for t in $(declare -F | sed -n -e 's/declare -f \(test_.*\)/\1/p')
   do
     run_test "$t" clj
+    run_test "$t" clj8
     run_test "$t" cljs
   done
 fi

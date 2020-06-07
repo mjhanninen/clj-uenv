@@ -1,6 +1,12 @@
 {:paths ["lib"]
  :deps {}
- :aliases {:dev {:extra-paths ["dev"]}
-           :test {:extra-paths ["test"]}
-           :kaocha {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.632"}}}
-           :kaocha-cljs {:extra-deps {lambdaisland/kaocha-cljs {:mvn/version "0.0-71"}}}}}
+ :aliases
+ {:cider-cljs {:main-opts ["-m" "nrepl.cmdline" "--middleware"
+                           "[cider.nrepl/cider-middleware,cider.piggieback/wrap-cljs-repl]"]}
+  :clj8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
+  :clj9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
+  :clj10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.1"}}}
+  :cljs {:extra-deps {org.clojure/clojurescript {:mvn/version "1.10.520"}}}
+  :kaocha {:extra-deps {lambdaisland/kaocha {:mvn/version "1.0.632"}}}
+  :kaocha-cljs {:extra-deps {lambdaisland/kaocha-cljs {:mvn/version "0.0-71"}}}
+  :test {:extra-paths ["test"]}}}

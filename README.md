@@ -5,6 +5,11 @@ backends through in the spirit of 12-factor app.  It supports `.env` files to
 facilitate local development and the `*_FILE` convention for handling large
 and, in some settings, secret values.
 
+## Status
+
+This library is at the **experimental** stage at best. Things are missing and
+anything can break.
+
 ## Features
 
 - Reads environment variables from `.env` style files

@@ -1,0 +1,34 @@
+version: "3.8"
+
+services:
+
+  db:
+    container_name: uenv-cljs-ex-db
+    image: postgres:12.3
+    environment:
+      POSTGRES_DB: hello
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+    volumes:
+      - "./run/secrets:/run/secrets:ro"
+    ports:
+      - "5432:5432"
+
+  app:
+    container_name: uenv-cljs-ex-app
+    depends_on:
+      - db
+    image: uenv-demo/server:latest
+    volumes:
+      - "./run/public:/run/public:ro"
+      - "./run/secrets:/run/secrets:ro"
+    environment:
+      CERTIFICATE_FILE: /run/public/CERTIFICATE
+      CERTIFICATE_KEY_FILE: /run/secrets/CERTIFICATE_KEY
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: hello
+      DB_USER: root
+      DB_PASSWORD_FILE: /run/secrets/POSTGRES_PASSWORD
+    ports:
+      - "8000:8000"

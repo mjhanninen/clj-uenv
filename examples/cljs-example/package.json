@@ -1,0 +1,8 @@
+{
+    "dependencies": {
+        "cookies": "~0.8.0",
+        "pg": "~8.2.0",
+        "random-bytes": "~1.0.0",
+        "ws": "~7.3.0"
+    }
+}

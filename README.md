@@ -16,7 +16,7 @@ anything can break.
 - Supports the `*_FILE` convention for handling secret or large values
 - Platforms:
   - Clojure 1.8 and up
-  - ClojureSript NodeJS target
+  - ClojureScript NodeJS target
 - No external dependencies
 
 ## Not done yet

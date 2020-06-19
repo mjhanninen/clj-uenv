@@ -2,12 +2,23 @@
   (:refer-clojure :exclude [slurp])
   (:require [clojure.java.io :as io]))
 
+(defn resolve-file
+  [path]
+  (let [f (-> path io/as-file .getCanonicalFile)]
+    (-> (if (.exists f)
+          {:status (if (.isFile f)
+                     :found
+                     :not-file)
+           :id (.getPath f)}
+          {:status :not-found})
+      (assoc :path path))))
+
 (defn slurp
   [path]
   (-> path io/as-file clojure.core/slurp))
 
 (defn source-env-file
-  [->env-file-event path]
+  [path ->env-file-event]
   (let [f (io/as-file path)]
     (when (.exists f)
       (let [p (.getAbsolutePath f)]

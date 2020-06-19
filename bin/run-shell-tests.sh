@@ -8,7 +8,7 @@ test_01_load()
 {
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(when (not-empty (e/load))
+(when (not-empty (e/load [:sys]))
   (println "Did load"))
 EOF
   expect <<EOF
@@ -20,7 +20,7 @@ test_02_undefined_envars()
 {
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load)]
+(let [env (e/load [:sys])]
   (prn :foo (e/get env "FOO"))
   (prn :bar (e/get env "BAR" "BAR with default")))
 EOF
@@ -36,7 +36,7 @@ test_03_vars_from_env()
   BAR="BAR in environment" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load)]
+(let [env (e/load [:sys])]
   (prn :foo (e/get env "FOO"))
   (prn :bar (e/get env "BAR" "BAR with default"))
   (prn :baz (e/get env "BAZ")))
@@ -74,7 +74,7 @@ EOF
   BAR="BAR in environment" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load ["$f"])]
+(let [env (e/load ["$f" :sys])]
   (prn (e/get env "FOO" "FOO is undefined"))
   (prn (e/get env "BAR" "BAR is undefined"))
   (prn (e/get env "BAZ" "BAZ is undefined")))
@@ -103,7 +103,7 @@ EOF
   BAZ="BAZ in environment" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load ["$f1" "$f2"])]
+(let [env (e/load ["$f1" "$f2" :sys])]
   (prn (e/get env "FOO" "FOO is undefined"))
   (prn (e/get env "BAR" "BAR is undefined"))
   (prn (e/get env "BAZ" "BAZ is undefined"))
@@ -124,7 +124,7 @@ test_07_value_from_file()
   FOO_FILE="$f_val" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load)]
+(let [env (e/load [:sys])]
   (prn :foo (e/get env "FOO" "FOO is undefined"))
   (prn :foo-file (e/get env "FOO_FILE" "FOO_FILE is undefined")))
 EOF
@@ -144,7 +144,7 @@ EOF
   FOO_FILE="$f_val" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load)]
+(let [env (e/load [:sys])]
   (prn (e/get env "FOO" "FOO is undefined")))
 EOF
   expect <<EOF
@@ -164,7 +164,7 @@ EOF
   FOO_FILE="$f_val" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load ["$f_env"])]
+(let [env (e/load ["$f_env" :sys])]
   (prn :foo (e/get env "FOO" "FOO is undefined"))
   (prn :bar (e/get env "BAR" "BAR is undefined")))
 EOF
@@ -186,7 +186,7 @@ EOF
   FOO="FOO in environment" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load ["$f_env"])]
+(let [env (e/load ["$f_env" :sys])]
   (prn :foo (e/get env "FOO" "FOO is undefined"))
   (prn :bar (e/get env "BAR" "BAR is undefined")))
 EOF
@@ -204,7 +204,7 @@ test_0B_env_value_trumps_file_value_in_environment()
   FOO="FOO in environment" \
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load)]
+(let [env (e/load [:sys])]
   (prn :foo (e/get env "FOO" "FOO is undefined"))
   (prn :foo-file (e/get env "FOO_FILE" "FOO_FILE is undefined")))
 EOF
@@ -231,7 +231,7 @@ BAZ=BAZ redefined in .env file
 EOF
   eval_cljc <<EOF
 (require '[uenv.core :as e])
-(let [env (e/load ["$f_env"])]
+(let [env (e/load ["$f_env" :sys])]
   (prn :foo (e/get env "FOO" "FOO is undefined"))
   (prn :bar (e/get env "BAR" "BAR is undefined"))
   (prn :baz (e/get env "BAZ" "BAZ is undefined"))

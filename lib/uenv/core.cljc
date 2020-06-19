@@ -3,14 +3,11 @@
   (:require [uenv.impl :as impl]))
 
 (defn load
-  ([]
-   (impl/load-env nil))
-  ([paths]
-   {:pre [(or (nil? paths)
-              (seq? paths)
-              (list? paths)
-              (vector? paths))]}
-   (impl/load-env paths)))
+  [sources]
+  {:pre [(or (seq? sources)
+             (list? sources)
+             (vector? sources))]}
+  (impl/load-env sources))
 
 (let [g (memoize impl/get-env)]
   (defn get

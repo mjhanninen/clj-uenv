@@ -94,7 +94,8 @@
 
 (defn main
   []
-  (let [env (e/load [".env"])]
+  (let [env (e/load [{:src ".env", :required? false}
+                     :sys])]
     (go
       (let [{db :ok} (<! (try-connect-db (db-config env)))]
         (when db

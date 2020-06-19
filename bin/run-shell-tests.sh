@@ -274,6 +274,9 @@ run_test()
   touch "$OUT_EXPECT"
   echo -e -n "$TEST_NAME ${PADSTR:$((${#TEST_NAME} + 9))} \e[34mTESTING\e[39m"
   case "$2" in
+    bb)
+      EVAL_CLJC_COMMAND=eval_bb
+      ;;
     clj)
       EVAL_CLJC_COMMAND=eval_clj
       ;;
@@ -327,6 +330,11 @@ eval_cljs()
   clojure -Srepro -Acljs -m cljs.main -re node - >> "$OUT_ACTUAL" 2>&1
 }
 
+eval_bb()
+{
+  bb --classpath lib -f <(cat) >> "$OUT_ACTUAL" 2>&1
+}
+
 expect()
 {
   cat - >> "$OUT_EXPECT"
@@ -365,7 +373,7 @@ declare -a PLATFORMS
 while true
 do
   case $1 in
-    clj|clj8|cljs)
+    bb|clj|clj8|cljs)
       PLATFORMS+=("$1")
       shift
       ;;
@@ -376,7 +384,7 @@ do
 done
 if (( ${#PLATFORMS[@]} == 0 ))
 then
-  PLATFORMS=(clj clj8 cljs)
+  PLATFORMS=(clj clj8 cljs bb)
 fi
 
 # The remaining arguments can be used to select tests by pattern matching

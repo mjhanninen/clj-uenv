@@ -17,7 +17,10 @@ anything can break.
 - Platforms:
   - Clojure 1.8 and up
   - ClojureScript NodeJS target
+  - [Babashka][babashka] (experimental)
 - No external dependencies
+
+[babashka]: https://github.com/borkdude/babashka
 
 ## Not done yet
 

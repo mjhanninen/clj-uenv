@@ -1,6 +1,7 @@
 (ns uenv.impl
   (:require [clojure.set :as set]
-            [#?(:clj uenv.impl.jvm
+            [#?(:bb uenv.impl.bb
+                :clj uenv.impl.jvm
                 :cljs uenv.impl.node) :as platform]))
 
 (defn resolve-one-source

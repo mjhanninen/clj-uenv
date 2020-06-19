@@ -358,21 +358,50 @@ EOF
   fi
 }
 
+# The initial positional arguments can be used to limit testing to select
+# platforms.
+
+declare -a PLATFORMS
+while true
+do
+  case $1 in
+    clj|clj8|cljs)
+      PLATFORMS+=("$1")
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+if (( ${#PLATFORMS[@]} == 0 ))
+then
+  PLATFORMS=(clj clj8 cljs)
+fi
+
+# The remaining arguments can be used to select tests by pattern matching
+# their name against the arguments
+
 if (( $# > 0 ))
 then
-  for t in "$@"
-  do
-    run_test "$t" clj
-    run_test "$t" clj8
-    run_test "$t" cljs
-  done
+  TEST_PAT="$(IFS="|"; echo -n "$*")"
 else
-  for t in $(declare -F | sed -n -e 's/declare -f \(test_.*\)/\1/p')
-  do
-    run_test "$t" clj
-    run_test "$t" clj8
-    run_test "$t" cljs
-  done
+  TEST_PAT=".*"
 fi
+
+TESTS=(
+  $(declare -F \
+      | sed -n -e 's/declare -f \(test_.*\)/\1/p' \
+      | egrep "$TEST_PAT" \
+      | tr "\n" " ")
+)
+
+for t in "${TESTS[@]}"
+do
+  for p in "${PLATFORMS[@]}"
+  do
+    run_test "$t" "$p"
+  done
+done
 
 report

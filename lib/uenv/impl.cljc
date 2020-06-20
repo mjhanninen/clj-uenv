@@ -4,24 +4,32 @@
                 :clj uenv.impl.jvm
                 :cljs uenv.impl.node) :as platform]))
 
-(defn resolve-one-source
+(defn is-source?
+  [x]
+  (when (and (map? x)
+             (when-let [src (:src x)]
+               (or (= src :sys)
+                   (string? src))))
+    x))
+
+(defn normalize-source
   [source]
   (cond
-    (= source :sys) (recur {:src :sys})
-    (string? source) (recur {:src source})
-    :else (let [src (:src source)
-                kind (cond
-                       (= src :sys) :sys
-                       (string? src) :file
-                       :else (throw (ex-info "invalid source description"
-                                             {:type :uenv/error
-                                              :errors [{:code :bad-source
-                                                        :data source}]})))]
-            (cond-> {:type kind
-                     :required? (-> source
-                                  (clojure.core/get :required? true)
-                                  boolean)}
-              (= kind :file) (assoc :file (platform/resolve-file src))))))
+    (= source :sys) {:src :sys}
+    (string? source) {:src source}
+    (is-source? source) source
+    :else (throw (ex-info "invalid source specification"
+                          {:type :uenv/error
+                           :reason :bad-source
+                           :input source}))))
+
+(defn resolve-one-source
+  [source opts]
+  (let [{:keys [src required?]} (merge opts source)
+        type (if (= src :sys) :sys :file)]
+    (cond-> {:type type
+             :required? (boolean required?)}
+      (= type :file) (assoc :file (platform/resolve-file src)))))
 
 (defn source->id
   [source]
@@ -37,8 +45,8 @@
                               (:required? new)))))
 
 (defn resolve-all-sources
-  [sources]
-  (let [resolved (map #(-> %1 resolve-one-source (assoc :ix %2))
+  [sources opts]
+  (let [resolved (map #(-> %1 (resolve-one-source opts) (assoc :ix %2))
                       sources
                       (range))
         table (reduce #(update %1 (source->id %2) merge-sources %2)
@@ -129,9 +137,9 @@
     (reduce insert-keyval {})))
 
 (defn load-env
-  [sources]
+  [sources opts]
   (let [events (-> sources
-                 resolve-all-sources
+                 (resolve-all-sources opts)
                  check-missing-files
                  source-all-sources)]
     (when-let [errors (->> events

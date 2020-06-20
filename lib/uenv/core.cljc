@@ -2,12 +2,19 @@
   (:refer-clojure :exclude [get load])
   (:require [uenv.impl :as impl]))
 
+(def default-options
+  {:required? true})
+
 (defn load
-  [sources]
-  {:pre [(or (seq? sources)
-             (list? sources)
-             (vector? sources))]}
-  (impl/load-env sources))
+  ([sources]
+   (load sources {}))
+  ([sources options]
+   {:pre [(or (seq? sources)
+              (list? sources)
+              (vector? sources))
+          (map? options)]}
+   (impl/load-env (map impl/normalize-source sources)
+                  (merge options default-options))))
 
 (let [g (memoize impl/get-env)]
   (defn get

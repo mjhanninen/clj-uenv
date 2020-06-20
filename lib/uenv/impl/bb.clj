@@ -1,4 +1,5 @@
 (ns uenv.impl.bb
+  (:refer-clojure :exclude [slurp])
   (:require [clojure.java.io :as io]))
 
 (defn resolve-file
@@ -12,9 +13,7 @@
           {:status :not-found})
       (assoc :path path))))
 
-(defn slurp
-  [path]
-  (slurp path))
+(def slurp clojure.core/slurp)
 
 (defn source-env-file
   [path ->env-file-event]

@@ -7,8 +7,7 @@ and, in some settings, secret values.
 
 ## Status
 
-This library is at the **experimental** stage at best. Things are missing and
-anything can break.
+This library is at the **experimental** stage. Things may still break.
 
 ## Features
 
@@ -22,9 +21,12 @@ anything can break.
 
 [babashka]: https://github.com/borkdude/babashka
 
-## Not done yet
+## Things to do before first release
 
-- Multiline values in `.env` files
+- [ ] Support multiline values in `.env` files
+- [ ] Coherent errors
+- [ ] Document rules for resolving values
+- [ ] Improve test coverage
 
 ## Non-goals
 
